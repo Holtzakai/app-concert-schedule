@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#173b36" />
+    <meta
+      name="description"
+      content="演奏会の本番・GP進行を自動計算し、PDFとExcelに出力できる1ページアプリ"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="演奏会進行表メーカー" />
+    <meta property="og:description" content="演奏会の本番・GP進行を自動計算し、PDFとExcelに出力" />
+    <meta property="og:image" content="./og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>演奏会進行表メーカー</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header no-print">
+      <div>
+        <p class="eyebrow">CONCERT RUN OF SHOW</p>
+        <h1>演奏会進行表メーカー</h1>
+      </div>
+      <div class="header-actions">
+        <span id="save-status" class="save-status" aria-live="polite">この端末に自動保存</span>
+        <button id="print-button" class="button button-secondary" type="button">PDFを出力</button>
+        <button id="excel-button" class="button button-primary" type="button">Excelを出力</button>
+      </div>
+    </header>
+
+    <section class="intro no-print" aria-labelledby="intro-title">
+      <div class="intro-copy">
+        <p class="step-label">このアプリについて</p>
+        <h2 id="intro-title">演目を上から並べるだけで、当日の進行をひとつに。</h2>
+        <p>本番とGPの時刻を自動計算し、現場で使えるA4横の進行表に整えます。入力内容はこの端末内だけに保存され、外部へ送信されません。</p>
+      </div>
+      <ol class="quick-steps" aria-label="簡単な利用方法">
+        <li><strong>1</strong><span>公演情報を入力</span></li>
+        <li><strong>2</strong><span>演奏・休憩を並べる</span></li>
+        <li><strong>3</strong><span>PDF / Excelで出力</span></li>
+      </ol>
+      <div class="project-actions">
+        <button id="json-save-button" class="button button-quiet" type="button">中間データを保存</button>
+        <button id="json-load-button" class="button button-quiet" type="button">JSONを読み込む</button>
+        <input id="json-file-input" type="file" accept="application/json,.json" hidden />
+        <small>別の端末で続けるときや、途中経過のバックアップに使えます。</small>
+      </div>
+    </section>
+
+    <main class="workspace">
+      <section class="editor no-print" aria-labelledby="settings-title">
+        <div class="section-heading">
+          <div>
+            <p class="step-label">01 / 基本情報</p>
+            <h2 id="settings-title">公演を設定</h2>
+          </div>
+          <button id="reset-button" class="text-button" type="button">サンプルに戻す</button>
+        </div>
+
+        <div class="settings-grid">
+          <label class="field field-wide">
+            <span>主催・団体名</span>
+            <input data-setting="organization" type="text" autocomplete="organization" />
+          </label>
+          <label class="field field-wide">
+            <span>進行表タイトル</span>
+            <input data-setting="title" type="text" />
+          </label>
+          <label class="field">
+            <span>開催日</span>
+            <input data-setting="date" type="date" />
+          </label>
+          <label class="field field-wide">
+            <span>会場</span>
+            <input data-setting="venue" type="text" />
+          </label>
+          <label class="field">
+            <span>開場</span>
+            <input data-setting="doorsOpen" type="time" />
+          </label>
+          <label class="field">
+            <span>開演挨拶</span>
+            <input data-setting="openingCue" type="time" />
+          </label>
+          <label class="field">
+            <span>最初の演奏</span>
+            <input data-setting="firstStart" type="time" />
+          </label>
+          <label class="field">
+            <span>GP開始</span>
+            <input data-setting="gpStart" type="time" />
+          </label>
+          <label class="field">
+            <span>チューニング</span>
+            <span class="number-suffix"><input data-setting="tuningMinutes" type="number" min="0" max="60" /><small>分</small></span>
+          </label>
+          <label class="field">
+            <span>チューニング室→袖</span>
+            <span class="number-suffix"><input data-setting="travelMinutes" type="number" min="0" max="30" /><small>分</small></span>
+          </label>
+        </div>
+
+        <div class="section-heading schedule-heading">
+          <div>
+            <p class="step-label">02 / 演目</p>
+            <h2>進行を組む</h2>
+          </div>
+          <div class="add-actions" aria-label="進行項目を追加">
+            <button class="button button-quiet" data-add="performance" type="button">＋ 演奏</button>
+            <button class="button button-quiet" data-add="break" type="button">＋ 休憩</button>
+            <button class="button button-quiet" data-add="cue" type="button">＋ 進行</button>
+          </div>
+        </div>
+
+        <div class="editor-legend" aria-hidden="true">
+          <span>時刻は上から自動計算</span>
+          <span>↑↓で順番を変更</span>
+        </div>
+        <div id="item-list" class="item-list"></div>
+
+        <section class="gp-order-section" aria-labelledby="gp-order-title">
+          <div class="gp-order-heading">
+            <div>
+              <p class="step-label">GP / 曲順</p>
+              <h3 id="gp-order-title">GPだけの演奏順を設定</h3>
+              <p>本番の並びは変えず、GPの演奏順だけを入れ替えられます。</p>
+            </div>
+            <button id="gp-order-reset" class="text-button" type="button">本番の逆順に戻す</button>
+          </div>
+          <div id="gp-order-list" class="gp-order-list"></div>
+        </section>
+      </section>
+
+      <section class="preview-panel" aria-labelledby="preview-title">
+        <div class="preview-toolbar no-print">
+          <div>
+            <p class="step-label">03 / 出力プレビュー</p>
+            <h2 id="preview-title">進行表を確認</h2>
+          </div>
+          <div class="preview-controls">
+            <div class="view-tabs" role="tablist" aria-label="進行表の種類">
+              <button class="view-tab is-active" data-view="main" role="tab" aria-selected="true" type="button">本番</button>
+              <button class="view-tab" data-view="gp" role="tab" aria-selected="false" type="button">GP</button>
+            </div>
+            <div class="orientation-tabs" role="group" aria-label="用紙の向き">
+              <button class="orientation-tab is-active" data-orientation="landscape" type="button">A4 横</button>
+              <button class="orientation-tab" data-orientation="portrait" type="button">A4 縦</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-shell">
+          <article id="schedule-paper" class="schedule-paper" aria-live="polite"></article>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast no-print" role="status" aria-live="polite"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
