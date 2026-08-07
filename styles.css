@@ -128,6 +128,18 @@ button:disabled { cursor: not-allowed; opacity: 0.35; }
 }
 .field input:focus, .field select:focus, .lighting-fields select:focus { border-color: var(--green-2); box-shadow: 0 0 0 3px rgba(36, 86, 78, 0.12); }
 .picker-suffix { position: relative; display: block; min-width: 0; max-width: 100%; width: 100%; }
+/* iOS WebKit miscalculates 100% date/time controls when the input itself has padding (WebKit #301648). */
+.picker-suffix input[type="date"],
+.picker-suffix input[type="time"] {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  inline-size: 100%;
+  padding: 0;
+  padding-block: 0;
+  padding-inline: 0;
+  text-align: center;
+}
+.picker-suffix input::-webkit-date-and-time-value { text-align: center; }
 .picker-icon {
   position: absolute;
   right: 11px;
