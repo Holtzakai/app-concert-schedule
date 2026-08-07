@@ -75,10 +75,11 @@ button:disabled { cursor: not-allowed; opacity: 0.35; }
 .workspace {
   display: grid;
   grid-template-columns: minmax(500px, 0.85fr) minmax(640px, 1.15fr);
+  min-width: 0;
   min-height: calc(100vh - 101px);
 }
 
-.editor { padding: 34px clamp(22px, 3vw, 48px) 70px; background: rgba(255, 255, 255, 0.8); border-right: 1px solid #cdd6d2; }
+.editor { container: editor / inline-size; min-width: 0; padding: 34px clamp(22px, 3vw, 48px) 70px; background: rgba(255, 255, 255, 0.8); border-right: 1px solid #cdd6d2; }
 .preview-panel { min-width: 0; padding: 34px clamp(18px, 2.4vw, 40px) 70px; background: #e6ebe8; }
 
 .section-heading, .preview-toolbar {
@@ -108,12 +109,14 @@ button:disabled { cursor: not-allowed; opacity: 0.35; }
 .text-button { padding: 6px 0; border: 0; color: var(--muted); background: transparent; text-decoration: underline; text-underline-offset: 4px; }
 .add-actions { display: flex; flex-wrap: wrap; gap: 7px; }
 
-.settings-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+.settings-grid { min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
 .field { min-width: 0; display: grid; gap: 6px; }
 .field-wide { grid-column: span 2; }
 .field > span:first-child, .compact-field > span:first-child { font-size: 12px; font-weight: 750; color: #56635f; }
 .field input, .field select {
+  display: block;
   min-width: 0;
+  max-width: 100%;
   width: 100%;
   height: 42px;
   padding: 0 11px;
@@ -124,15 +127,16 @@ button:disabled { cursor: not-allowed; opacity: 0.35; }
   outline: none;
 }
 .field input:focus, .field select:focus, .lighting-fields select:focus { border-color: var(--green-2); box-shadow: 0 0 0 3px rgba(36, 86, 78, 0.12); }
-.number-suffix { position: relative; display: block; }
+.number-suffix { position: relative; display: block; min-width: 0; max-width: 100%; width: 100%; }
 .number-suffix input { padding-right: 31px; }
 .number-suffix small { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 
 .editor-legend { display: flex; gap: 17px; margin: -6px 0 12px; font-size: 11px; color: var(--muted); }
 .editor-legend span::before { content: "•"; margin-right: 6px; color: #86a198; }
-.item-list { display: grid; gap: 10px; }
+.item-list { min-width: 0; display: grid; gap: 10px; }
 .item-card {
   display: grid;
+  min-width: 0;
   grid-template-columns: 72px minmax(0, 1fr) 58px;
   gap: 12px;
   padding: 14px;
@@ -147,7 +151,7 @@ button:disabled { cursor: not-allowed; opacity: 0.35; }
 .item-order { display: flex; flex-direction: column; justify-content: center; border-right: 1px solid #e1e6e4; }
 .item-number { font-size: 11px; font-weight: 850; color: var(--green-2); text-transform: uppercase; }
 .item-order strong { margin-top: 3px; font-size: 15px; font-variant-numeric: tabular-nums; }
-.item-fields { display: grid; grid-template-columns: 85px minmax(130px, 1.5fr) 70px 70px 70px 62px minmax(130px, 1fr); gap: 9px; align-items: end; }
+.item-fields { min-width: 0; display: grid; grid-template-columns: 85px minmax(130px, 1.5fr) 70px 70px 70px 62px minmax(130px, 1fr); gap: 9px; align-items: end; }
 .compact-field { gap: 4px; }
 .compact-field input, .compact-field select { height: 35px; padding: 0 8px; font-size: 13px; }
 .compact-field.is-muted { opacity: 0.45; }
@@ -235,6 +239,18 @@ button:disabled { cursor: not-allowed; opacity: 0.35; }
   .workspace { grid-template-columns: 1fr; }
   .editor { border-right: 0; border-bottom: 1px solid #cdd6d2; }
   .preview-panel { min-height: 700px; }
+}
+
+@container editor (max-width: 840px) {
+  .item-card { grid-template-columns: 58px minmax(0, 1fr); }
+  .item-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .item-name-field, .announcement-field { grid-column: span 2; }
+  .item-actions { grid-column: 1 / -1; flex-direction: row; }
+  .item-actions button { min-width: 50px; padding: 0 10px; }
+}
+
+@container editor (max-width: 520px) {
+  .item-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
