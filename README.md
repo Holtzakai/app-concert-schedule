@@ -2,6 +2,8 @@
 
 演奏会の本番・GPスケジュールを自動計算し、A4横のPDFまたはExcelとして出力する静的Webアプリです。入力内容はブラウザー内だけで処理され、この端末に自動保存されます。
 
+デモ：https://holtzakai.github.io/app-concert-schedule/
+
 ## 使い方
 
 `index.html` を静的Webサーバーで公開してください。開発時は次のコマンドで起動できます。
